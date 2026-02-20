@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Book Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 My Book Collection</h1>
+            <a href="/add" class="btn btn-primary">Add New Book</a>
+        </header>
+
+        <div class="sort-controls">
+            <label>Sort by:</label>
+            <a href="/?sort=date_read" class="sort-btn <%= currentSort === 'date_read' ? 'active' : '' %>">Recent</a>
+            <a href="/?sort=rating" class="sort-btn <%= currentSort === 'rating' ? 'active' : '' %>">Rating</a>
+            <a href="/?sort=title" class="sort-btn <%= currentSort === 'title' ? 'active' : '' %>">Title</a>
+        </div>
+
+        <div class="books-grid">
+            <% if (books.length === 0) { %>
+                <p class="no-books">No books found. <a href="/add">Add your first book!</a></p>
+            <% } else { %>
+                <% books.forEach(book => { %>
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <% if (book.cover_url) { %>
+                                <img src="<%= book.cover_url %>" alt="<%= book.title %>" onerror="this.src='/placeholder.jpg'">
+                            <% } else { %>
+                                <div class="no-cover">📖</div>
+                            <% } %>
+                        </div>
+                        <div class="book-info">
+                            <h3><%= book.title %></h3>
+                            <p class="author">by <%= book.author %></p>
+                            <div class="rating">
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                    <span class="star <%= i <= book.rating ? 'filled' : '' %>">★</span>
+                                <% } %>
+                            </div>
+                            <% if (book.date_read) { %>
+                                <p class="date">Read: <%= new Date(book.date_read).toLocaleDateString() %></p>
+                            <% } %>
+                            <% if (book.notes) { %>
+                                <p class="notes"><%= book.notes.substring(0, 100) %><%= book.notes.length > 100 ? '...' : '' %></p>
+                            <% } %>
+                            <div class="actions">
+                                <a href="/edit/<%= book.id %>" class="btn btn-secondary">Edit</a>
+                                <form method="POST" action="/delete/<%= book.id %>" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

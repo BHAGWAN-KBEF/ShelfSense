@@ -1,0 +1,5 @@
+<svg width="120" height="180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="180" fill="#e9ecef" stroke="#dee2e6" stroke-width="2"/>
+  <text x="60" y="90" text-anchor="middle" font-family="Arial" font-size="40" fill="#6c757d">📖</text>
+  <text x="60" y="120" text-anchor="middle" font-family="Arial" font-size="12" fill="#6c757d">No Cover</text>
+</svg>

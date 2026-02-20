@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Book - My Book Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Add New Book</h1>
+            <a href="/" class="btn btn-secondary">← Back to Collection</a>
+        </header>
+
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+        <form method="POST" action="/add" class="book-form">
+            <div class="form-group">
+                <label for="title">Title *</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author *</label>
+                <input type="text" id="author" name="author" required>
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN (for book cover)</label>
+                <input type="text" id="isbn" name="isbn" placeholder="e.g., 9780307887894">
+                <small>Optional: Used to fetch book cover from Open Library</small>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating *</label>
+                <select id="rating" name="rating" required>
+                    <option value="">Select rating</option>
+                    <option value="1">⭐ 1 - Poor</option>
+                    <option value="2">⭐⭐ 2 - Fair</option>
+                    <option value="3">⭐⭐⭐ 3 - Good</option>
+                    <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date_read">Date Read</label>
+                <input type="date" id="date_read" name="date_read">
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes" rows="5" placeholder="Your thoughts, key takeaways, favorite quotes..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Book</button>
+        </form>
+    </div>
+</body>
+</html>

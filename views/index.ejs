@@ -1,63 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Book Tracker</title>
-    <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Book Tracker</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📚 My Book Collection</h1>
-            <a href="/add" class="btn btn-primary">Add New Book</a>
-        </header>
 
-        <div class="sort-controls">
-            <label>Sort by:</label>
-            <a href="/?sort=date_read" class="sort-btn <%= currentSort === 'date_read' ? 'active' : '' %>">Recent</a>
-            <a href="/?sort=rating" class="sort-btn <%= currentSort === 'rating' ? 'active' : '' %>">Rating</a>
-            <a href="/?sort=title" class="sort-btn <%= currentSort === 'title' ? 'active' : '' %>">Title</a>
-        </div>
+  <div class="container">
 
-        <div class="books-grid">
-            <% if (books.length === 0) { %>
-                <p class="no-books">No books found. <a href="/add">Add your first book!</a></p>
-            <% } else { %>
-                <% books.forEach(book => { %>
-                    <div class="book-card">
-                        <div class="book-cover">
-                            <% if (book.cover_url) { %>
-                                <img src="<%= book.cover_url %>" alt="<%= book.title %>" onerror="this.src='/placeholder.jpg'">
-                            <% } else { %>
-                                <div class="no-cover">📖</div>
-                            <% } %>
-                        </div>
-                        <div class="book-info">
-                            <h3><%= book.title %></h3>
-                            <p class="author">by <%= book.author %></p>
-                            <div class="rating">
-                                <% for (let i = 1; i <= 5; i++) { %>
-                                    <span class="star <%= i <= book.rating ? 'filled' : '' %>">★</span>
-                                <% } %>
-                            </div>
-                            <% if (book.date_read) { %>
-                                <p class="date">Read: <%= new Date(book.date_read).toLocaleDateString() %></p>
-                            <% } %>
-                            <% if (book.notes) { %>
-                                <p class="notes"><%= book.notes.substring(0, 100) %><%= book.notes.length > 100 ? '...' : '' %></p>
-                            <% } %>
-                            <div class="actions">
-                                <a href="/edit/<%= book.id %>" class="btn btn-secondary">Edit</a>
-                                <form method="POST" action="/delete/<%= book.id %>" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } %>
-        </div>
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+      <div class="header-left">
+        <h1>📚 My Book Tracker</h1>
+        <p class="subtitle">Welcome, <%= userEmail %></p>
+      </div>
+      <div class="header-actions">
+        <a href="/add" class="btn btn-primary">+ Add Book</a>
+        <form method="POST" action="/logout" style="display:inline;">
+          <button type="submit" class="btn btn-secondary">Log Out</button>
+        </form>
+      </div>
+    </header>
+
+    <!-- ===== STATS DASHBOARD ===== -->
+    <!-- Shows summary numbers at the top — demonstrates dashboard UI thinking -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="stat-number"><%= totalBooks %></span>
+        <span class="stat-label">Books Read</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number"><%= avgRating %></span>
+        <span class="stat-label">Avg Rating</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number"><%= topRated %></span>
+        <span class="stat-label">5-Star Books</span>
+      </div>
     </div>
+
+    <!-- ===== SEARCH & SORT CONTROLS ===== -->
+    <div class="controls">
+
+      <!-- Search form — sends GET request with ?search= query param -->
+      <form method="GET" action="/" class="search-form">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search by title or author..."
+          value="<%= search %>"
+          class="search-input"
+        />
+        <button type="submit" class="btn btn-primary">Search</button>
+        <% if (search) { %>
+          <a href="/" class="btn btn-secondary">Clear</a>
+        <% } %>
+      </form>
+
+      <!-- Sort buttons — pass sort param in URL -->
+      <div class="sort-controls">
+        <span class="sort-label">Sort by:</span>
+        <a href="/?sort=date_read<%= search ? '&search=' + search : '' %>"
+           class="sort-btn <%= currentSort === 'date_read' ? 'active' : '' %>">Recent</a>
+        <a href="/?sort=rating<%= search ? '&search=' + search : '' %>"
+           class="sort-btn <%= currentSort === 'rating' ? 'active' : '' %>">Rating</a>
+        <a href="/?sort=title<%= search ? '&search=' + search : '' %>"
+           class="sort-btn <%= currentSort === 'title' ? 'active' : '' %>">Title</a>
+      </div>
+
+    </div>
+
+    <!-- ===== SEARCH RESULT LABEL ===== -->
+    <% if (search) { %>
+      <p class="search-result-label">
+        Showing results for "<strong><%= search %></strong>" — <%= totalBooks %> found
+      </p>
+    <% } %>
+
+    <!-- ===== BOOKS GRID ===== -->
+    <div class="books-grid">
+
+      <!-- Empty state — good UX when no books exist -->
+      <% if (books.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">📖</div>
+          <% if (search) { %>
+            <h2>No books found for "<%= search %>"</h2>
+            <p>Try a different search term or <a href="/">view all books</a>.</p>
+          <% } else { %>
+            <h2>Your collection is empty</h2>
+            <p>Start building your reading list. <a href="/add">Add your first book!</a></p>
+          <% } %>
+        </div>
+
+      <% } else { %>
+
+        <% books.forEach(book => { %>
+          <div class="book-card">
+
+            <!-- Book Cover Image (from Open Library API) -->
+            <div class="book-cover">
+              <% if (book.cover_url) { %>
+                <img
+                  src="<%= book.cover_url %>"
+                  alt="Cover of <%= book.title %>"
+                  onerror="this.onerror=null; this.src='/placeholder.jpg'"
+                  loading="lazy"
+                />
+              <% } else { %>
+                <div class="no-cover" aria-label="No cover available">📖</div>
+              <% } %>
+            </div>
+
+            <!-- Book Details -->
+            <div class="book-info">
+              <h3 class="book-title"><%= book.title %></h3>
+              <p class="book-author">by <%= book.author %></p>
+
+              <!-- Star Rating Display -->
+              <div class="rating" aria-label="Rating: <%= book.rating %> out of 5">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <span class="star <%= i <= book.rating ? 'filled' : '' %>">★</span>
+                <% } %>
+              </div>
+
+              <!-- Date Read -->
+              <% if (book.date_read) { %>
+                <p class="book-date">📅 <%= new Date(book.date_read).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) %></p>
+              <% } %>
+
+              <!-- Notes with Read More toggle -->
+              <% if (book.notes) { %>
+                <div class="notes-section">
+                  <p class="notes-text" id="notes-<%= book.id %>">
+                    <!-- Show first 100 chars, hide the rest -->
+                    <span class="notes-short"><%= book.notes.substring(0, 100) %><%= book.notes.length > 100 ? '...' : '' %></span>
+                    <% if (book.notes.length > 100) { %>
+                      <span class="notes-full" style="display:none;"><%= book.notes %></span>
+                      <button class="read-more-btn" onclick="toggleNotes(this, '<%= book.id %>')">Read more</button>
+                    <% } %>
+                  </p>
+                </div>
+              <% } %>
+
+              <!-- Action Buttons -->
+              <div class="card-actions">
+                <a href="/edit/<%= book.id %>" class="btn btn-secondary">✏️ Edit</a>
+                <form method="POST" action="/delete/<%= book.id %>" style="display:inline;">
+                  <button
+                    type="submit"
+                    class="btn btn-danger"
+                    onclick="return confirm('Delete this book?')"
+                    aria-label="Delete <%= book.title %>"
+                  >🗑️ Delete</button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        <% }) %>
+
+      <% } %>
+    </div><!-- end books-grid -->
+
+  </div><!-- end container -->
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    // Toggle between short and full notes text
+    // Simple DOM manipulation — no framework needed for this
+    function toggleNotes(btn, bookId) {
+      const container = document.getElementById("notes-" + bookId);
+      const shortText = container.querySelector(".notes-short");
+      const fullText = container.querySelector(".notes-full");
+
+      if (fullText.style.display === "none") {
+        shortText.style.display = "none";
+        fullText.style.display = "inline";
+        btn.textContent = "Read less";
+      } else {
+        shortText.style.display = "inline";
+        fullText.style.display = "none";
+        btn.textContent = "Read more";
+      }
+    }
+  </script>
+
 </body>
 </html>

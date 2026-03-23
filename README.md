@@ -1,153 +1,150 @@
-# 📚 Book Tracker
+# ReadShelf
 
-A web application to track books you've read with ratings, notes, and covers. Inspired by Derek Sivers' book collection website.
+A full-stack web app to track books you've read — with personal notes, star ratings, automatic cover images via ISBN, and a reading stats dashboard.
+
+🔗 **Live Demo:** [readshelf.onrender.com](https://readshelf.onrender.com) ← update after deployment
+
+---
 
 ## Features
 
-- ✅ Add, edit, and delete books
-- ⭐ Rate books from 1-5 stars
-- 📝 Add personal notes and thoughts
-- 📅 Track when you read each book
-- 🖼️ Automatic book covers via Open Library API
-- 🔄 Sort by rating, recency, or title
-- 📱 Responsive design
+- User authentication — sign up, log in, log out (bcrypt + sessions)
+- Each user sees only their own books
+- Add, edit, and delete books
+- Rate books 1–5 stars
+- Write personal notes with Read More / Read Less toggle
+- Automatic book covers fetched from Open Library API via ISBN
+- Search by title or author
+- Sort by most recent, highest rated, or alphabetical
+- Stats dashboard — total books, average rating, 5-star count
+- Fully responsive — mobile, tablet, and desktop
+
+---
 
 ## Tech Stack
 
-- **Backend**: Node.js with Express.js
-- **Database**: PostgreSQL
-- **Frontend**: EJS templating, HTML, CSS
-- **API**: Open Library Covers API
-- **HTTP Client**: Axios
+| Layer      | Technology                  |
+|------------|-----------------------------|
+| Backend    | Node.js + Express.js        |
+| Database   | PostgreSQL                  |
+| Templating | EJS                         |
+| Styling    | Vanilla CSS                 |
+| Auth       | bcrypt + express-session    |
+| API        | Open Library Covers API     |
+| Deployment | Render + Supabase           |
 
-## Prerequisites
-
-- Node.js (v14 or higher)
-- PostgreSQL (v12 or higher)
-- npm or yarn
-
-## Setup Instructions
-
-### 1. Clone and Install Dependencies
-
-```bash
-# Navigate to project directory
-cd BOOKS
-
-# Install dependencies
-npm install
-```
-
-### 2. Database Setup
-
-1. Make sure PostgreSQL is running on your system
-2. Create the database and tables:
-
-```bash
-# Connect to PostgreSQL
-psql -U postgres
-
-# Run the SQL file
-\i postgres.sql
-```
-
-Or manually run the commands in `postgres.sql` file.
-
-### 3. Configure Environment Variables
-
-1. Copy the example environment file:
-
-```bash
-cp .env.example .env
-```
-
-2. Edit `.env` and add your PostgreSQL credentials:
-
-```env
-DB_USER=postgres
-DB_HOST=localhost
-DB_NAME=booktracker
-DB_PASSWORD=your_actual_password
-DB_PORT=5432
-PORT=3000
-```
-
-⚠️ **Important**: Never commit the `.env` file to version control!
-
-### 4. Start the Server
-
-```bash
-# Development mode with auto-restart
-npm run dev
-
-# Or production mode
-npm start
-```
-
-The application will be available at `http://localhost:3000`
-
-## Usage
-
-1. **View Books**: Visit the home page to see all your books
-2. **Add Book**: Click "Add New Book" to add a new entry
-3. **Sort Books**: Use the sort buttons to organize by rating, recency, or title
-4. **Edit/Delete**: Use the buttons on each book card to modify or remove entries
-5. **Book Covers**: Add ISBN numbers to automatically fetch book covers
-
-## API Integration
-
-The app uses the Open Library Covers API to fetch book covers:
-- Endpoint: `https://covers.openlibrary.org/b/isbn/{isbn}-M.jpg`
-- Requires valid ISBN-10 or ISBN-13
-- Falls back to placeholder if no cover found
-
-## Database Schema
-
-```sql
-CREATE TABLE books (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    author VARCHAR(255) NOT NULL,
-    isbn VARCHAR(20),
-    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-    notes TEXT,
-    date_read DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+---
 
 ## Project Structure
 
 ```
-BOOKS/
+readshelf/
 ├── views/
-│   ├── index.ejs      # Main page template
-│   ├── add.ejs        # Add book form
-│   └── edit.ejs       # Edit book form
+│   ├── index.ejs        # Home — book grid, search, sort, stats
+│   ├── add.ejs          # Add book form with live cover preview
+│   ├── edit.ejs         # Edit book form with live cover preview
+│   ├── login.ejs        # Login page
+│   └── signup.ejs       # Signup page
 ├── public/
-│   ├── styles.css     # Main stylesheet
-│   └── placeholder.jpg # Fallback book cover
-├── index.js           # Main server file
-├── package.json       # Dependencies
-├── postgres.sql       # Database setup
-└── README.md         # This file
+│   ├── styles.css       # All styles
+│   └── placeholder.jpg  # Fallback cover image
+├── index.js             # Express server — all routes and DB logic
+├── postgres.sql         # Database schema + sample data
+├── .env.example         # Environment variable template
+└── package.json
 ```
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## Local Setup
+
+### 1. Clone and install
+```bash
+git clone https://github.com/YOUR_USERNAME/readshelf.git
+cd readshelf
+npm install
+```
+
+### 2. Set up the database
+```bash
+psql -U postgres
+\i postgres.sql
+```
+
+### 3. Configure environment variables
+```bash
+cp .env.example .env
+```
+
+Fill in your PostgreSQL credentials in `.env`:
+```
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=booktracker
+DB_PASSWORD=your_password
+DB_PORT=5432
+PORT=3000
+SESSION_SECRET=your_secret_key
+```
+
+### 4. Run the app
+```bash
+npm run dev     # development (nodemon)
+npm start       # production
+```
+
+Visit: [http://localhost:3000](http://localhost:3000)
+
+---
+
+## Database Schema
+
+```sql
+CREATE TABLE users (
+  id       SERIAL PRIMARY KEY,
+  email    VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE books (
+  id         SERIAL PRIMARY KEY,
+  user_id    INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  title      VARCHAR(255) NOT NULL,
+  author     VARCHAR(255) NOT NULL,
+  isbn       VARCHAR(20),
+  rating     INTEGER CHECK (rating >= 1 AND rating <= 5),
+  notes      TEXT,
+  date_read  DATE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## API Integration
+
+Book covers are fetched from the [Open Library Covers API](https://openlibrary.org/dev/docs/api#anchor_covers):
+```
+https://covers.openlibrary.org/b/isbn/{isbn}-M.jpg
+```
+No API key required. Falls back to a placeholder image if no cover is found.
+
+---
+
+## Deployment
+
+Deployed on **Render** (Node.js web service) with **Supabase** (PostgreSQL).
+
+Set the following environment variables on Render:
+```
+DATABASE_URL=your_supabase_connection_string
+SESSION_SECRET=your_secret_key
+PORT=3000
+```
+
+---
 
 ## License
 
-MIT License - feel free to use this project for learning and personal use.
-
-## Acknowledgments
-
-- Inspired by [Derek Sivers' book collection](https://sive.rs/book)
-- Book covers provided by [Open Library](https://openlibrary.org/)
-- Built as part of a web development capstone project
+MIT

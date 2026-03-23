@@ -25,7 +25,7 @@ const SALT_ROUNDS = 10; // how many times bcrypt scrambles the password
 // ============================================================
 const db = new pg.Client(
   process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }, family: 4 }
+    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
     : {
         user: process.env.DB_USER,
         host: process.env.DB_HOST,

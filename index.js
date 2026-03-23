@@ -104,7 +104,7 @@ app.post("/signup", async (req, res) => {
 
     // Save new user to database
     const result = await db.query(
-      "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id",
+      "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id",
       [email, hashedPassword]
     );
 
@@ -139,7 +139,7 @@ app.post("/login", async (req, res) => {
     const user = result.rows[0];
 
     // Compare entered password with hashed password in database
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return res.render("login.ejs", { error: "Invalid email or password." });
     }

@@ -46,7 +46,7 @@ app.set("view engine", "ejs");
 // Session middleware — keeps user logged in between page visits
 // The secret signs the session cookie so it cannot be tampered with
 app.use(session({
-  secret: process.env.SESSION_SECRET || "booktracker_secret_key",
+  secret: process.env.SESSION_SECRET || "Bhagwan@SecureShelf#2024!XK92",
   resave: false,            // don't save session if nothing changed
   saveUninitialized: false, // don't create session until something is stored
   cookie: { maxAge: 1000 * 60 * 60 * 24 } // session lasts 24 hours

@@ -2,7 +2,7 @@
 
 A full-stack web app to track books you've read — with personal notes, star ratings, automatic cover images via ISBN, and a reading stats dashboard.
 
-🔗 **Live Demo:** [readshelf.onrender.com](https://readshelf.onrender.com) ← update after deployment
+🔗 **Live Demo:** [shelfsense demo](https://shelfsense-8hpf.onrender.com/login)
 
 ---
 
